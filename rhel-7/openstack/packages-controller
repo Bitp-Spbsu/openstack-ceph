@@ -1,0 +1,4 @@
+mariadb mariadb-server MySQL-python rabbitmq-server 
+openstack-keystone httpd mod_wsgi python-openstackclient memcached python-memcached openstack-utils 
+openstack-glance python-glance python-glanceclient
+python-rbd

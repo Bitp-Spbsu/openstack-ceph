@@ -1,0 +1,4 @@
+export OS_TOKEN=$ADMIN_TOKEN
+export OS_TOKEN=$sslkey
+export OS_URL=http://$HOSTNAME:35357/v2.0
+

@@ -1,0 +1,22 @@
+
+
+
+cat > ~/admin-openrc.sh << EOF
+export OS_PROJECT_DOMAIN_ID=default
+export OS_USER_DOMAIN_ID=default
+export OS_PROJECT_NAME=admin
+export OS_TENANT_NAME=admin
+export OS_USERNAME=admin
+export OS_PASSWORD=$ADMIN_PASS
+export OS_AUTH_URL=http://$HOSTNAME:35357/v3
+EOF
+
+cat > ~/demo-openrc.sh << EOF
+export OS_PROJECT_DOMAIN_ID=default
+export OS_USER_DOMAIN_ID=default
+export OS_PROJECT_NAME=demo
+export OS_TENANT_NAME=demo
+export OS_USERNAME=demo
+export OS_PASSWORD=$DEMOPASS
+export OS_AUTH_URL=http://$HOSTNAME:5000/v3
+EOF

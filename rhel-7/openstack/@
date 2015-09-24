@@ -1,0 +1,18 @@
+#Controller
+INSTDIR=~/
+yum localinstall -y `cat $INSTDIR/openstack-ceph/rhel-7/openstack/packages01`
+yum install -y `cat $INSTDIR/openstack-ceph/rhel-7/openstack/packages02`
+yum install -y `cat $INSTDIR/openstack-ceph/rhel-7/openstack/packages-controller`
+
+cp   $INSTDIR/openstack-ceph/rhel-7/openstack/mariadb_openstack.cnf  /etc/my.cnf.d/
+systemctl enable mariadb.service
+systemctl start mariadb.service
+#should change
+mysql_secure_installation
+
+systemctl enable rabbitmq-server.service
+systemctl start rabbitmq-server.service
+rabbitmqctl add_user openstack $RABBIT_PASS
+rabbitmqctl set_permissions openstack ".*" ".*" ".*"
+
+
