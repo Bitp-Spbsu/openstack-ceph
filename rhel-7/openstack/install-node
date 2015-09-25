@@ -32,9 +32,11 @@ openstack-config --set  /etc/nova/nova.conf libvirt   libvirt_inject_key false
 openstack-config --set  /etc/nova/nova.conf libvirt   libvirt_inject_partition -2
 openstack-config --set  /etc/nova/nova.conf libvirt   rbd_user cinder
 
-export key=`grep key   /etc/ceph/ceph.client.cinder.keyring  |awk '{print $3}'`
+export key=`cat /etc/ceph/ceph.client.cinder.keyring`
 echo DEBUG key=$key
 
+systemctl enable libvirtd
+systemctl start libvirtd
 
 cat > /etc/libvirt/secret.xml << EOF
    <secret ephemeral='no' private='no'>
