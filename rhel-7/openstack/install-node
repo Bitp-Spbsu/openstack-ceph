@@ -32,6 +32,11 @@ openstack-config --set  /etc/nova/nova.conf libvirt   libvirt_inject_key false
 openstack-config --set  /etc/nova/nova.conf libvirt   libvirt_inject_partition -2
 openstack-config --set  /etc/nova/nova.conf libvirt   rbd_user cinder
 
+openstack-config --set  /etc/nova/nova.conf oslo_messaging_rabbit rabbit_host $CONTROLLER
+openstack-config --set  /etc/nova/nova.conf oslo_messaging_rabbit rabbit_userid openstack
+openstack-config --set  /etc/nova/nova.conf oslo_messaging_rabbit rabbit_password $RABBIT_PASS
+
+
 export key=`cat /etc/ceph/ceph.client.cinder.keyring`
 echo DEBUG key=$key
 
@@ -47,7 +52,7 @@ cat > /etc/libvirt/secret.xml << EOF
 EOF
 
 skey=`virsh secret-list| grep client.cinder| awk '{print $1}'`
-if [ "$skey" = ""]; then
+if [ "$skey" = "" ]; then
 	skey=`virsh secret-define --file /etc/libvirt/secret.xml | awk '{print $2}'`
 fi
 echo DEBUG: virsh secret-set-value --secret  $skey --base64 $key
