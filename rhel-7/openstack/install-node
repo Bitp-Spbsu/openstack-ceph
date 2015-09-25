@@ -35,8 +35,8 @@ openstack-config --set  /etc/nova/nova.conf libvirt   rbd_user cinder
 export key=`cat /etc/ceph/ceph.client.cinder.keyring`
 echo DEBUG key=$key
 
-systemctl enable libvirtd
-systemctl start libvirtd
+systemctl enable libvirtd.service
+systemctl start libvirtd.service
 
 cat > /etc/libvirt/secret.xml << EOF
    <secret ephemeral='no' private='no'>
@@ -46,7 +46,10 @@ cat > /etc/libvirt/secret.xml << EOF
    </secret>
 EOF
 
-skey=`virsh secret-define --file /etc/libvirt/secret.xml | awk '{print $2}'`
+skey=`virsh secret-list| grep client.cinder| awk '{print $1}'`
+if [ "$skey" = ""]; then
+	skey=`virsh secret-define --file /etc/libvirt/secret.xml | awk '{print $2}'`
+fi
 echo DEBUG: virsh secret-set-value --secret  $skey --base64 $key
 virsh secret-set-value --secret  $skey --base64 $key
 
