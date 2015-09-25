@@ -1,0 +1,2 @@
+openstack-nova-compute sysfsutils 
+qemu-kvm qemu-kvm-tools qemu-img qemu-guest-agent libvirt 

@@ -1,0 +1,7 @@
+#packages
+yum -y install `cat packages01`
+yum -y install `cat packages02`
+yum -y install `cat packages-node`
+
+
+

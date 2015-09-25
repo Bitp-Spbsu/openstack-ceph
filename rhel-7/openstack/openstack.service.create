@@ -41,6 +41,10 @@ openstack endpoint create --publicurl http://$HOSTNAME:9292 --internalurl http:/
 openstack endpoint list
 
 
+openstack user create --password $NOVA_PASS nova
+openstack role add --project service --user nova admin
+openstack service create --name nova --description "OpenStack Compute" compute
+openstack endpoint create --publicurl http://$HOSTNAME:8774/v2/%\(tenant_id\)s  --internalurl http://$HOSTNAME:8774/v2/%\(tenant_id\)s --adminurl http://$HOSTNAME:8774/v2/%\(tenant_id\)s --region RegionOne compute
 
 
 
