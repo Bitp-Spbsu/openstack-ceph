@@ -1,4 +1,7 @@
 pwd
+yum install -y `cat packages01`
+yum install -y `cat packages02 | grep -v ceph`
+
 yum install -y `cat packages-neutron`;
 cp /etc/neutron/neutron.conf /etc/neutron/neutron.conf.save.`date +%d.%m.%y-%H.%M`
 
@@ -25,7 +28,7 @@ penstack-config --set  /etc/nova/neutron.conf keystone_authtoken project_name se
 penstack-config --set  /etc/nova/neutron.conf keystone_authtoken username neutron
 penstack-config --set  /etc/nova/neutron.conf keystone_authtoken password $NEUTRON_PASS
 
-penstack-config --set  /etc/nova/neutron.conf nova  auth_url  http://CONTROLLER:35357
+penstack-config --set  /etc/nova/neutron.conf nova  auth_url  http://$CONTROLLER:35357
 penstack-config --set  /etc/nova/neutron.conf nova  auth_plugin  password
 penstack-config --set  /etc/nova/neutron.conf nova  project_domain_id  default
 penstack-config --set  /etc/nova/neutron.conf nova  user_domain_id  default
