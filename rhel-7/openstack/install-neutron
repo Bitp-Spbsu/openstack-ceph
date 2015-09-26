@@ -15,7 +15,7 @@ openstack-config --set  /etc/neutron/neutron.conf DEFAULT verbose True
 openstack-config --set  /etc/neutron/neutron.conf DEFAULT notify_nova_on_port_status_changes True
 openstack-config --set  /etc/neutron/neutron.conf DEFAULT notify_nova_on_port_data_changes True
 openstack-config --set  /etc/neutron/neutron.conf DEFAULT nova_url http://$CONTROLLER:8774/v2
-openstack-config --set  /etc/neutron/neutron.conf oslo_messaging_rabbit rabbit_host $HOSTNAME
+openstack-config --set  /etc/neutron/neutron.conf oslo_messaging_rabbit rabbit_host $CONTROLLER
 openstack-config --set  /etc/neutron/neutron.conf oslo_messaging_rabbit rabbit_userid openstack
 openstack-config --set  /etc/neutron/neutron.conf oslo_messaging_rabbit rabbit_password $RABBIT_PASS
 
@@ -36,6 +36,7 @@ openstack-config --set  /etc/neutron/neutron.conf nova  region_name  RegionOne
 openstack-config --set  /etc/neutron/neutron.conf nova  project_name  service
 openstack-config --set  /etc/neutron/neutron.conf nova  username  nova
 openstack-config --set  /etc/neutron/neutron.conf nova  password  $NOVA_PASS
+
 
 
 openstack-config --set  /etc/neutron/plugins/ml2/ml2_conf.ini ml2 type_drivers flat,vlan,gre,vxlan
