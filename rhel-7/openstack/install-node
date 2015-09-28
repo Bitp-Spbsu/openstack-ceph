@@ -3,7 +3,7 @@ yum -y install `cat packages01`
 yum -y install `cat packages02`
 yum -y install `cat packages-node`
 
-cat >> /etc/sysctl.conf < EOF
+cat >> /etc/sysctl.conf << EOF
 net.ipv4.conf.all.rp_filter=0
 net.ipv4.conf.default.rp_filter=0
 net.bridge.bridge-nf-call-iptables=1
