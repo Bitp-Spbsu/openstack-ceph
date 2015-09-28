@@ -119,7 +119,7 @@ sed -i 's,plugins/openvswitch/ovs_neutron_plugin.ini,plugin.ini,g'  /usr/lib/sys
 
 su -s /bin/sh -c "neutron-db-manage --config-file /etc/neutron/neutron.conf --config-file /etc/neutron/plugins/ml2/ml2_conf.ini upgrade head" neutron
 
-services="# systemctl enable neutron-openvswitch-agent.service neutron-l3-agent.service  neutron-dhcp-agent.service neutron-metadata-agent.service  neutron-ovs-cleanup.service "
+services="neutron-openvswitch-agent.service neutron-l3-agent.service  neutron-dhcp-agent.service neutron-metadata-agent.service  neutron-ovs-cleanup.service "
 
 systemctl enable $services
 systemctl start $services
