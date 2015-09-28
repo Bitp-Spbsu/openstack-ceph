@@ -1,1 +1,1 @@
-openstack-neutron openstack-neutron-ml2 python-neutronclient which
+openstack-neutron openstack-neutron-ml2 openstack-neutron-openvswitch

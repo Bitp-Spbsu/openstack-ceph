@@ -2,5 +2,6 @@ mariadb mariadb-server MySQL-python rabbitmq-server
 openstack-keystone httpd mod_wsgi python-openstackclient memcached python-memcached openstack-utils 
 openstack-glance python-glance python-glanceclient
 python-rbd ceph
-openstack-nova-api openstack-nova-cert openstack-nova-conductor openstack-nova-console openstack-nova-novncproxy openstack-nova-scheduler python-novaclient
+openstack-nova-api openstack-nova-cert openstack-nova-conductor openstack-nova-console openstack-nova-novncproxy openstack-nova-scheduler python-novaclient openstack-neutron openstack-neutron-ml2 python-neutronclient which
+
 
