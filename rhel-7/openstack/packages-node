@@ -1,2 +1,3 @@
 openstack-nova-compute sysfsutils 
 qemu-kvm qemu-kvm-tools qemu-img qemu-guest-agent libvirt 
+openstack-neutron openstack-neutron-ml2 openstack-neutron-openvswitch

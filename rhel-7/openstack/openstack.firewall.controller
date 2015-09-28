@@ -2,4 +2,5 @@ firewall-cmd --permanent  --new-zone=management
 firewall-cmd --permanent  --zone=management  --add-port=0-50000/tcp
 firewall-cmd --permanent  --zone=management  --add-port=0-50000/udp
 firewall-cmd --permanent  --zone=management --add-source=$MANAGEMENTNET
+firewall-cmd --reload
 

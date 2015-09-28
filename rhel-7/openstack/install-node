@@ -3,6 +3,14 @@ yum -y install `cat packages01`
 yum -y install `cat packages02`
 yum -y install `cat packages-node`
 
+cat >> /etc/sysctl.conf < EOF
+net.ipv4.conf.all.rp_filter=0
+net.ipv4.conf.default.rp_filter=0
+net.bridge.bridge-nf-call-iptables=1
+net.bridge.bridge-nf-call-ip6tables=1
+EOF
+sysctl -p
+
 cp /etc/nova/nova.conf /etc/nova/nova.conf.save.`date +%d.%m.%y-%H.%M`
 
 openstack-config --set  /etc/nova/nova.conf DEFAULT rpc_backend rabbit
@@ -11,7 +19,6 @@ openstack-config --set  /etc/nova/nova.conf DEFAULT my_ip $CONTROLLERIP
 openstack-config --set  /etc/nova/nova.conf DEFAULT vncserver_listen 0.0.0.0
 openstack-config --set  /etc/nova/nova.conf DEFAULT vncserver_proxyclient_address $CONTROLLERIP
 openstack-config --set  /etc/nova/nova.conf DEFAULT verbose True
-
 openstack-config --set  /etc/nova/nova.conf DEFAULT network_api_class nova.network.neutronv2.api.API
 openstack-config --set  /etc/nova/nova.conf DEFAULT security_group_api neutron
 openstack-config --set  /etc/nova/nova.conf DEFAULT linuxnet_interface_driver nova.network.linux_net.LinuxOVSInterfaceDriver
@@ -24,7 +31,6 @@ openstack-config --set  /etc/nova/nova.conf neutron admin_tenant_name service
 openstack-config --set  /etc/nova/nova.conf neutron admin_username neutron
 openstack-config --set  /etc/nova/nova.conf neutron admin_password $NEUTRON_PASS
 
-
 openstack-config --set  /etc/nova/nova.conf keystone_authtoken auth_uri http://$CONTROLLER:5000
 openstack-config --set  /etc/nova/nova.conf keystone_authtoken auth_url http://$CONTROLLER:35357
 openstack-config --set  /etc/nova/nova.conf keystone_authtoken auth_plugin password
@@ -33,8 +39,11 @@ openstack-config --set  /etc/nova/nova.conf keystone_authtoken user_domain_id de
 openstack-config --set  /etc/nova/nova.conf keystone_authtoken project_name service
 openstack-config --set  /etc/nova/nova.conf keystone_authtoken username nova
 openstack-config --set  /etc/nova/nova.conf keystone_authtoken password $NOVA_PASS
+
 openstack-config --set  /etc/nova/nova.conf glance host $CONTROLLER
+
 openstack-config --set  /etc/nova/nova.conf oslo_concurrency lock_path /var/lib/nova/tmp
+
 openstack-config --set  /etc/nova/nova.conf libvirt   virt_type kvm
 openstack-config --set  /etc/nova/nova.conf libvirt   libvirt_images_type rbd
 openstack-config --set  /etc/nova/nova.conf libvirt   libvirt_images_rbd_pool volumes
@@ -47,6 +56,53 @@ openstack-config --set  /etc/nova/nova.conf libvirt   rbd_user cinder
 openstack-config --set  /etc/nova/nova.conf oslo_messaging_rabbit rabbit_host $CONTROLLER
 openstack-config --set  /etc/nova/nova.conf oslo_messaging_rabbit rabbit_userid openstack
 openstack-config --set  /etc/nova/nova.conf oslo_messaging_rabbit rabbit_password $RABBIT_PASS
+
+openstack-config --set  /etc/nova/nova.conf DEFAULT network_api_class nova.network.neutronv2.api.API
+openstack-config --set  /etc/nova/nova.conf DEFAULT security_group_api neutron
+openstack-config --set  /etc/nova/nova.conf DEFAULT linuxnet_interface_driver nova.network.linux_net.LinuxOVSInterfaceDriver
+openstack-config --set  /etc/nova/nova.conf DEFAULT firewall_driver nova.virt.firewall.NoopFirewallDriver
+
+
+openstack-config --set  /etc/neutron/neutron.conf DEFAULT rpc_backend rabbit
+openstack-config --set  /etc/neutron/neutron.conf DEFAULT auth_strategy keystone
+openstack-config --set  /etc/neutron/neutron.conf DEFAULT core_plugin ml2
+openstack-config --set  /etc/neutron/neutron.conf DEFAULT service_plugins router
+openstack-config --set  /etc/neutron/neutron.conf DEFAULT allow_overlapping_ips True
+openstack-config --set  /etc/neutron/neutron.conf DEFAULT verbose True
+
+openstack-config --set  /etc/neutron/neutron.conf oslo_messaging_rabbit rabbit_host $CONTROLLER
+openstack-config --set  /etc/neutron/neutron.conf oslo_messaging_rabbit rabbit_userid openstack
+openstack-config --set  /etc/neutron/neutron.conf oslo_messaging_rabbit rabbit_password $RABBIT_PASS
+
+openstack-config --set  /etc/neutron/neutron.conf keystone_authtoken auth_uri http://$CONTROLLER:5000
+openstack-config --set  /etc/neutron/neutron.conf keystone_authtoken auth_url http://$CONTROLLER:35357
+openstack-config --set  /etc/neutron/neutron.conf keystone_authtoken auth_plugin password
+openstack-config --set  /etc/neutron/neutron.conf keystone_authtoken project_domain_id default
+openstack-config --set  /etc/neutron/neutron.conf keystone_authtoken user_domain_id default
+openstack-config --set  /etc/neutron/neutron.conf keystone_authtoken project_name service
+openstack-config --set  /etc/neutron/neutron.conf keystone_authtoken username neutron
+openstack-config --set  /etc/neutron/neutron.conf keystone_authtoken password $NEUTRON_PASS
+
+
+
+openstack-config --set  /etc/neutron/plugins/ml2/ml2_conf.ini ml2 type_drivers flat,vlan,gre,vxlan
+openstack-config --set  /etc/neutron/plugins/ml2/ml2_conf.ini ml2 tenant_network_types gre
+openstack-config --set  /etc/neutron/plugins/ml2/ml2_conf.ini ml2 mechanism_drivers openvswitch
+
+openstack-config --set  /etc/neutron/plugins/ml2/ml2_conf.ini ml2_type_gre tunnel_id_ranges 1:1000
+
+openstack-config --set  /etc/neutron/plugins/ml2/ml2_conf.ini securitygroup enable_security_group True
+openstack-config --set  /etc/neutron/plugins/ml2/ml2_conf.ini securitygroup enable_ipset True
+openstack-config --set  /etc/neutron/plugins/ml2/ml2_conf.ini securitygroup firewall_driver neutron.agent.linux.iptables_firewall.OVSHybridIptablesFirewallDriver
+
+openstack-config --set  /etc/neutron/plugins/ml2/ml2_conf.ini ovs local_ip `hostname -i`
+openstack-config --set  /etc/neutron/plugins/ml2/ml2_conf.ini ovs bridge_mappings external:br-ex
+
+openstack-config --set  /etc/neutron/plugins/ml2/ml2_conf.ini agent tunnel_types gre
+
+ln -s /etc/neutron/plugins/ml2/ml2_conf.ini /etc/neutron/plugin.ini
+cp /usr/lib/systemd/system/neutron-openvswitch-agent.service /usr/lib/systemd/system/neutron-openvswitch-agent.service.orig
+sed -i 's,plugins/openvswitch/ovs_neutron_plugin.ini,plugin.ini,g' /usr/lib/systemd/system/neutron-openvswitch-agent.service
 
 
 export key=`cat /etc/ceph/ceph.client.cinder.keyring`
@@ -72,17 +128,17 @@ virsh secret-set-value --secret  $skey --base64 $key
 
 
 
+systemctl disable  firewalld
+systemctl stop firewalld
 
 openstack-config --set  /etc/nova/nova.conf libvirt   rbd_secret_uuid $skey
 
 systemctl enable libvirtd.service openstack-nova-compute.service
-systemctl start libvirtd.service openstack-nova-compute.service
+systemctl restart libvirtd.service openstack-nova-compute.service
 
+systemctl enable openvswitch.service
+systemctl restart openvswitch.service
 
-openstack-config --set  /etc/nova/nova.conf DEFAULT network_api_class nova.network.neutronv2.api.API
-openstack-config --set  /etc/nova/nova.conf DEFAULT security_group_api neutron
-openstack-config --set  /etc/nova/nova.conf DEFAULT linuxnet_interface_driver nova.network.linux_net.LinuxOVSInterfaceDriver
-openstack-config --set  /etc/nova/nova.conf DEFAULT firewall_driver nova.virt.firewall.NoopFirewallDriver
-
-
+systemctl enable neutron-openvswitch-agent.service
+systemctl restart neutron-openvswitch-agent.service
 
