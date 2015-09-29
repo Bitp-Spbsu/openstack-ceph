@@ -96,7 +96,6 @@ openstack-config --set  /etc/neutron/plugins/ml2/ml2_conf.ini securitygroup enab
 openstack-config --set  /etc/neutron/plugins/ml2/ml2_conf.ini securitygroup firewall_driver neutron.agent.linux.iptables_firewall.OVSHybridIptablesFirewallDriver
 
 openstack-config --set  /etc/neutron/plugins/ml2/ml2_conf.ini ovs local_ip `hostname -i`
-openstack-config --set  /etc/neutron/plugins/ml2/ml2_conf.ini ovs bridge_mappings external:br-ex
 
 openstack-config --set  /etc/neutron/plugins/ml2/ml2_conf.ini agent tunnel_types gre
 
@@ -139,6 +138,6 @@ systemctl restart libvirtd.service openstack-nova-compute.service
 systemctl enable openvswitch.service
 systemctl restart openvswitch.service
 
-systemctl enable neutron-openvswitch-agent.service
-systemctl restart neutron-openvswitch-agent.service
+#systemctl disable neutron-openvswitch-agent.service
+#systemctl stop neutron-openvswitch-agent.service
 
