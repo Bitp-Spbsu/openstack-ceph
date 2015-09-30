@@ -1,36 +1,36 @@
 28c28
-< ALLOWED_HOSTS = '*'
+< ALLOWED_HOSTS = ['horizon.example.com', 'localhost']
 ---
-> ALLOWED_HOSTS = ['horizon.example.com', 'localhost']
+> ALLOWED_HOSTS = '*'
 120,126d119
-< CACHES = {
-<     'default': {
-<         'BACKEND': 'django.core.cache.backends.memcached.MemcachedCache',
-<         'LOCATION': '127.0.0.1:11211',
-<     }
-< }
+< #CACHES = {
+< #    'default': {
+< #        'BACKEND': 'django.core.cache.backends.memcached.MemcachedCache',
+< #        'LOCATION': '127.0.0.1:11211',
+< #    }
+< #}
 < 
 129c122,123
-< #        'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
+<         'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
 ---
-> #        'BACKEND': 'django.core.cache.backends.memcached.MemcachedCache',
-> #        'LOCATION': '127.0.0.1:11211',
+>         'BACKEND': 'django.core.cache.backends.memcached.MemcachedCache',
+>         'LOCATION': '127.0.0.1:11211',
 132a127,132
-> CACHES = {
->     'default': {
->         'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
->     }
-> }
+> #CACHES = {
+> #    'default': {
+> #        'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
+> #    }
+> #}
 > 
 150c150
-< OPENSTACK_HOST = "CONTROLLERHOST"
+< OPENSTACK_HOST = "127.0.0.1"
 ---
-> OPENSTACK_HOST = "127.0.0.1"
+> OPENSTACK_HOST = "CONTROLLERHOST"
 152c152
-< OPENSTACK_KEYSTONE_DEFAULT_ROLE = "user"
+< OPENSTACK_KEYSTONE_DEFAULT_ROLE = "_member_"
 ---
-> OPENSTACK_KEYSTONE_DEFAULT_ROLE = "_member_"
+> OPENSTACK_KEYSTONE_DEFAULT_ROLE = "user"
 316c316
-< TIME_ZONE = "MSK"
+< TIME_ZONE = "UTC"
 ---
-> TIME_ZONE = "UTC"
+> TIME_ZONE = "MSK"
