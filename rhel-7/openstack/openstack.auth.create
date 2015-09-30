@@ -20,3 +20,8 @@ export OS_USERNAME=demo
 export OS_PASSWORD=$DEMOPASS
 export OS_AUTH_URL=http://$HOSTNAME:5000/v3
 EOF
+
+cat > keystone-auth.sh << EOF
+export OS_SERVICE_TOKEN=$sslkey
+export OS_SERVICE_ENDPOINT=http://$CONTROLLER:35357/v2.0
+EOF

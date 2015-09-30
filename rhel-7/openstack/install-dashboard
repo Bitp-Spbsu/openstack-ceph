@@ -1,0 +1,18 @@
+yum -y install `cat packages01`
+yum -y install `cat packages02`
+yum -y install `cat packages-dashboard`
+
+cp  /etc/openstack-dashboard/local_settings  /etc/openstack-dashboard/local_settings.save.`date +%d.%m.%y-%H.%M`
+#sed s/"OPENSTACK_HOST =.*"/"OPENSTACK_HOST = \"$CONTROLLER\""/g   -i /etc/openstack-dashboard/local_settings| grep OPENSTACK_HOST
+#sed s/"ALLOWED_HOSTS = .*"/"ALLOWED_HOSTS = \'\*\'"/g  -i  /etc/openstack-dashboard/local_settings
+sed s/CONTROLLERHOST/"$CONTROLLER/g -i dashboard_local_settings.patch
+patch -f -i dashboard_local_settings.patch /etc/openstack-dashboard/local_settings
+
+setsebool -P httpd_can_network_connect on
+chown -R apache:apache /usr/share/openstack-dashboard/static
+systemctl enable httpd.service memcached.service
+systemctl start httpd.service memcached.service
+
+frewall-cmd --permanent --zone=public --add-port=80/tcp
+firewall-cmd --reload
+

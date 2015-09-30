@@ -3,5 +3,6 @@ openstack-keystone httpd mod_wsgi python-openstackclient memcached python-memcac
 openstack-glance python-glance python-glanceclient
 python-rbd ceph
 openstack-nova-api openstack-nova-cert openstack-nova-conductor openstack-nova-console openstack-nova-novncproxy openstack-nova-scheduler python-novaclient openstack-neutron openstack-neutron-ml2 python-neutronclient which
-
+openstack-cinder python-cinderclient python-oslo-db
+qemu targetcli
 

@@ -33,4 +33,4 @@
 316c316
 < TIME_ZONE = "UTC"
 ---
-> TIME_ZONE = "MSK"
+> TIME_ZONE = "RU"

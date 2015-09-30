@@ -1,5 +1,5 @@
 #Controller
-INSTDIR=~/
+#INSTDIR=~/
 
 yum localinstall -y `cat $INSTDIR/openstack-ceph/rhel-7/openstack/packages01`
 yum install -y `cat $INSTDIR/openstack-ceph/rhel-7/openstack/packages02`
@@ -100,6 +100,7 @@ openstack-config --set /etc/glance/glance-api.conf glance_store default_store rb
 openstack-config --set /etc/glance/glance-api.conf DEFAULT rbd_store_user glance
 openstack-config --set /etc/glance/glance-api.conf DEFAULT rbd_store_pool images
 openstack-config --set /etc/glance/glance-api.conf DEFAULT rbd_store_ceph_conf /etc/ceph/ceph.conf
+openstack-config --set /etc/glance/glance-api.conf DEFAULT image_conversion_dir $IMAGEDIR
 openstack-config --set /etc/glance/glance-api.conf client.images keyring /etc/ceph/ceph.client.glance.keyring
 
 cp /etc/glance/glance-registry.conf /etc/glance/glance-registry.conf.`date +%d.%m.%y-%H.%M`
@@ -205,5 +206,56 @@ su -s /bin/sh -c "neutron-db-manage --config-file /etc/neutron/neutron.conf --co
 
 systemctl enable neutron-server.service
 systemctl start neutron-server.service
+
+sed s/"CINDER_DBPASS"/"$CINDER_DBPASS"/g $INSTDIR/openstack-ceph/rhel-7/openstack/openstack-cinder.db |mysql --password=$DATABASEPW
+
+key=`grep key   /etc/ceph/ceph.client.cinder.keyring  |awk '{print $3}'`
+
+
+mv /etc/cinder/cinder.conf /etc/cinder/cinder.conf.save.`date +%d.%m.%y-%H.%M`
+cp /usr/share/cinder/cinder-dist.conf /etc/cinder/cinder.conf
+chown -R cinder:cinder /etc/cinder/cinder.conf
+chown cinder: /etc/ceph/ceph.client.cinder.keyring
+
+
+openstack-config --set /etc/cinder/cinder.conf database connection mysql://cinder:$CINDER_DBPASS@$CONTROLLER/cinder
+openstack-config --set /etc/cinder/cinder.conf DEFAULT rpc_backend  rabbit
+openstack-config --set /etc/cinder/cinder.conf DEFAULT auth_strategy keystone
+openstack-config --set /etc/cinder/cinder.conf DEFAULT my_ip  `hostname -i`
+openstack-config --set /etc/cinder/cinder.conf DEFAULT verbose  True
+
+openstack-config --set /etc/cinder/cinder.conf DEFAULT volume_driver  cinder.volume.drivers.rbd.RBDDriver
+openstack-config --set /etc/cinder/cinder.conf DEFAULT rbd_pool  volumes
+openstack-config --set /etc/cinder/cinder.conf DEFAULT rbd_user cinder
+openstack-config --set /etc/cinder/cinder.conf DEFAULT rbd_ceph_conf  /etc/ceph/ceph.conf
+openstack-config --set /etc/cinder/cinder.conf DEFAULT backup_driver cinder.backup.drivers.ceph
+openstack-config --set /etc/cinder/cinder.conf DEFAULT backup_ceph_conf  /etc/ceph/ceph.conf
+openstack-config --set /etc/cinder/cinder.conf DEFAULT backup_ceph_user  cinder-backup
+openstack-config --set /etc/cinder/cinder.conf DEFAULT backup_ceph_pool  backups
+openstack-config --set /etc/cinder/cinder.conf DEFAULT backup_ceph_stripe_unit  0
+openstack-config --set /etc/cinder/cinder.conf DEFAULT backup_ceph_stripe_count 0
+openstack-config --set /etc/cinder/cinder.conf DEFAULT restore_discard_excess_bytes true
+openstack-config --set /etc/cinder/cinder.conf DEFAULT glance_host $CONTROLLER
+openstack-config --set /etc/cinder/cinder.conf DEFAULT image_conversion_dir $VOLOUMDIR
+
+openstack-config --set /etc/cinder/cinder.conf oslo_messaging_rabbit rabbit_host $CONTROLLER
+openstack-config --set /etc/cinder/cinder.conf oslo_messaging_rabbit rabbit_userid openstack
+openstack-config --set /etc/cinder/cinder.conf oslo_messaging_rabbit rabbit_password $RABBIT_PASS
+
+openstack-config --set /etc/cinder/cinder.conf keystone_authtoken auth_uri http://$CONTROLLER:5000
+openstack-config --set /etc/cinder/cinder.conf keystone_authtoken auth_url http://$CONTROLLER:35357
+openstack-config --set /etc/cinder/cinder.conf keystone_authtoken auth_plugin  password
+openstack-config --set /etc/cinder/cinder.conf keystone_authtoken project_domain_id  default
+openstack-config --set /etc/cinder/cinder.conf keystone_authtoken user_domain_id default
+openstack-config --set /etc/cinder/cinder.conf keystone_authtoken project_name service
+openstack-config --set /etc/cinder/cinder.conf keystone_authtoken username cinder
+openstack-config --set /etc/cinder/cinder.conf keystone_authtoken password $CINDER_PASS
+
+openstack-config --set /etc/cinder/cinder.conf oslo_concurrency lock_path /var/lock/cinder
+
+su -s /bin/sh -c "cinder-manage db sync" cinder
+systemctl enable openstack-cinder-api.service openstack-cinder-scheduler.service openstack-cinder-volume.service target.service
+systemctl start openstack-cinder-api.service openstack-cinder-scheduler.service openstack-cinder-volume.service target.service
+
 
 
