@@ -15,9 +15,9 @@ cp /etc/nova/nova.conf /etc/nova/nova.conf.save.`date +%d.%m.%y-%H.%M`
 
 openstack-config --set  /etc/nova/nova.conf DEFAULT rpc_backend rabbit
 openstack-config --set  /etc/nova/nova.conf DEFAULT auth_strategy keystone
-openstack-config --set  /etc/nova/nova.conf DEFAULT my_ip `hostnmae -i`
+openstack-config --set  /etc/nova/nova.conf DEFAULT my_ip `hostname -i`
 openstack-config --set  /etc/nova/nova.conf DEFAULT vncserver_listen 0.0.0.0
-openstack-config --set  /etc/nova/nova.conf DEFAULT vncserver_proxyclient_address `hostnmae -i`
+openstack-config --set  /etc/nova/nova.conf DEFAULT vncserver_proxyclient_address `hostname -i`
 openstack-config --set  /etc/nova/nova.conf DEFAULT verbose True
 openstack-config --set  /etc/nova/nova.conf DEFAULT network_api_class nova.network.neutronv2.api.API
 openstack-config --set  /etc/nova/nova.conf DEFAULT security_group_api neutron
