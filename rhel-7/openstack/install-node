@@ -15,9 +15,9 @@ cp /etc/nova/nova.conf /etc/nova/nova.conf.save.`date +%d.%m.%y-%H.%M`
 
 openstack-config --set  /etc/nova/nova.conf DEFAULT rpc_backend rabbit
 openstack-config --set  /etc/nova/nova.conf DEFAULT auth_strategy keystone
-openstack-config --set  /etc/nova/nova.conf DEFAULT my_ip $CONTROLLERIP
+openstack-config --set  /etc/nova/nova.conf DEFAULT my_ip `hostnmae -i`
 openstack-config --set  /etc/nova/nova.conf DEFAULT vncserver_listen 0.0.0.0
-openstack-config --set  /etc/nova/nova.conf DEFAULT vncserver_proxyclient_address $CONTROLLERIP
+openstack-config --set  /etc/nova/nova.conf DEFAULT vncserver_proxyclient_address `hostnmae -i`
 openstack-config --set  /etc/nova/nova.conf DEFAULT verbose True
 openstack-config --set  /etc/nova/nova.conf DEFAULT network_api_class nova.network.neutronv2.api.API
 openstack-config --set  /etc/nova/nova.conf DEFAULT security_group_api neutron
@@ -138,6 +138,6 @@ systemctl restart libvirtd.service openstack-nova-compute.service
 systemctl enable openvswitch.service
 systemctl restart openvswitch.service
 
-#systemctl disable neutron-openvswitch-agent.service
-#systemctl stop neutron-openvswitch-agent.service
+systemctl enable neutron-openvswitch-agent.service
+systemctl restart neutron-openvswitch-agent.service
 
