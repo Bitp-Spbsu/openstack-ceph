@@ -10,7 +10,10 @@ net.ipv4.conf.all.rp_filter=0
 net.ipv4.conf.default.rp_filter=0
 EOF
 
-./openstack.firewall.controller
+# ./openstack.firewall.controller
+systemctl disable  firewalld
+systemctl stop firewalld
+
 
 sysctl -p
 cp /etc/neutron/neutron.conf /etc/neutron/neutron.conf.save.`date +%d.%m.%y-%H.%M`
