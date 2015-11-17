@@ -1,0 +1,62 @@
+FLOATING_IP_START=195.19.226.136
+FLOATING_IP_END=195.19.226.139
+EXTERNAL_NETWORK_GATEWAY=195.19.226.129
+EXTERNAL_NETWORK_CIDR=195.19.226.129/27
+
+
+
+#Image create
+glance image-create --name=centossimple0 --disk-format=qcow2 --container-format=bare  --is-public=true < /net/alice22/se2/disks/simplecentos0.qcow2
+
+#Network create:
+neutron net-create ext-net --shared --router:external=True
+neutron subnet-create ext-net --name ext-subnet --allocation-pool start=$FLOATING_IP_START,end=$FLOATING_IP_END  --disable-dhcp --gateway $EXTERNAL_NETWORK_GATEWAY $EXTERNAL_NETWORK_CIDR
+
+neutron net-create demo-net
+neutron subnet-create demo-net --name demo-subnet --gateway $TENANT_NETWORK_GATEWAY $TENANT_NETWORK_CIDR
+neutron router-create demo-router
+neutron router-interface-add demo-router demo-subnet
+neutron router-gateway-set demo-router ext-net
+
+DEMONET_ID=`neutron net-list |grep demo-net| awk '{print $2}'`
+
+#Create boot volume
+IMAGE_ID=`glance image-list | grep centossimple0| awk '{print $2}'`
+nova volume-create --image-id $IMAGE_ID --display-name centosboot0 45
+
+## Create MACHINE
+VOL_ID=`cinder list| grep centosboot0| awk '{print $2}'`
+nova keypair-add --pub-key ~/.ssh/id_rsa.pub demo-key
+nova boot --flavor m1.small --boot-volume=$VOL_ID --nic net-id=$DEMONET_ID --security-group default --key-name demo-key centos001
+
+#Floating
+
+nova secgroup-add-rule default icmp -1 -1 0.0.0.0/0
+nova secgroup-add-rule default tcp 22 22 0.0.0.0/0
+neutron floatingip-create ext-net
+neutron floatingip-list
+
+nova floating-ip-associate   centos001 195.19.226.137
+
+
+nova get-vnc-console centos001  novnc
+
+
+#DELETE:
+neutron floatingip-delete `neutron floatingip-list | grep 137| awk '{print $2}'`
+for i in `neutron router-list |awk '{ if ( $1 == "|" && $2 != "id") print $2 }'`; do neutron router-interface-delete $i demo-subnet; done
+for i in `neutron router-list |awk '{ if ( $1 == "|" && $2 != "id") print $2 }'`; do neutron router-interface-delete $i private-subnet; done
+for i in `neutron router-list |awk '{ if ( $1 == "|" && $2 != "id") print $2 }'`; do neutron router-delete $i ; done
+neutron subnet-delete `neutron subnet-list | grep public_subnet |awk '{ print $2}'`
+for i in `cinder list | grep available| awk '{print $2}'`; do cinder delete $i; done
+
+
+#neutron router-interface-delete 293b55e6-ea00-4266-9cba-3d25a6823a3d private_subnet
+#neutron router-delete 293b55e6-ea00-4266-9cba-3d25a6823a3d
+#neutron net-delete 1aabbcfd-881e-4021-b716-95f88fec17b0
+
+#VOLUMES
+cinder  upload-to-image --container-format bare --disk-format qcow2 9e7bf7c6-28d4-45dc-b681-385ccdc7849b  bonnie00
+glance image-download --file noda2eth.qcow2 --progress 03546ac6-9d53-4892-857e-91d5765bc298  
+
+
