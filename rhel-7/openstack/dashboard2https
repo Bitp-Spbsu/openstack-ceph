@@ -1,0 +1,4 @@
+yum -y install `cat packages-dashboard-ssl`
+cp  /etc/openstack-dashboard/local_settings  /etc/openstack-dashboard/local_settings.save.`date +%d.%m.%y-%H.%M`
+sed 's|.*CSRF_COOKIE_SECURE.*|USE_SSL = True\nCSRF_COOKIE_SECURE = True\nSESSION_COOKIE_SECURE = True\nSESSION_COOKIE_HTTPONLY = True\n|g' -i /etc/openstack-dashboard/local_settings
+
