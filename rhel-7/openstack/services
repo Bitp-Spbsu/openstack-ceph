@@ -1,0 +1,5 @@
+openstack-cinder-api.service openstack-cinder-scheduler.service openstack-cinder-volume.service 
+target.service 
+neutron-server.service 
+openstack-glance-api.service openstack-glance-registry.service
+openstack-nova-api.service openstack-nova-cert.service openstack-nova-consoleauth.service openstack-nova-scheduler.service openstack-nova-conductor.service openstack-nova-novncproxy.service

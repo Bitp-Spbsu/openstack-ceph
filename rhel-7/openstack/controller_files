@@ -1,0 +1,6 @@
+/etc/glance/glance-api.conf
+/etc/glance/glance-registry.conf
+/etc/nova/nova.conf
+/etc/neutron/neutron.conf
+/etc/cinder/cinder.conf
+

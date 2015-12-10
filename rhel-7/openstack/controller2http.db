@@ -1,0 +1,2 @@
+update endpoint set url="http://CONTROLLER:5000/v2.0" where url="https://CONTROLLER:5000/v2.0";
+update endpoint set url="http://CONTROLLER:35357/v2.0" where url="https://CONTROLLER:35357/v2.0";

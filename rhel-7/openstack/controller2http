@@ -1,0 +1,27 @@
+#!/bin/sh
+confiles=controller_files
+
+envs="auth_protocol auth_uri auth_url"
+
+changeenv="auth_uri http://$CONTROLLER:5000
+auth_url http://$CONTROLLER:35357
+auth_protocol http"
+
+
+for file in `cat $confiles`; do 
+	cp $file ${file}.save.`date +%d.%m.%y-%H.%M`
+	i=0;
+	for l in `echo $changeenv`; do 
+		if [ $i -eq 0 ]; then 
+			i=1;
+		else  
+			line="$k $l"; 
+			openstack-config --set $file keystone_authtoken $line
+			i=0; 
+		fi;
+	k=$l;
+	done
+done
+
+sed s/CONTROLLER/"$CONTROLLER"/g controller2http.db  | mysql -u keystone --password=$KEYSTONE_DBPASS keystone
+
