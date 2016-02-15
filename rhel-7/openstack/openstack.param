@@ -1,0 +1,57 @@
+export DATABASEPW='*****'
+export ADMIN_PASS='*****'
+export CEILOMETER_DBPASS=*****
+export CEILOMETER_PASS=*****
+export CINDER_DBPASS=*****
+export CINDER_PASS=*****
+export DASH_DBPASS=*****
+export DEMO_PASS=*****
+export GLANCE_DBPASS=*****
+export GLANCE_PASS=*****
+export HEAT_DBPASS=*****
+export HEAT_DOMAIN_PASS=*****
+export HEAT_PASS=*****
+export KEYSTONE_DBPASS=*****
+export NEUTRON_DBPASS=*****
+export NEUTRON_PASS=*****
+export NOVA_DBPASS=*****
+export NOVA_PASS=*****
+export RABBIT_PASS=*****
+export SAHARA_DBPASS=*****
+export SWIFT_PASS=*****
+export TROVE_DBPASS=*****
+export TROVE_PASS=*****
+export DEMOPASS=alice
+export CONTROLLER=alice01
+export CONTROLLERIP=192.168.200.11
+export MANAGEMENTNET="192.168.200.0/24"
+export INSTANCE_TUNNELS_INTERFACE_IP_ADDRESS=192.168.200.18
+export METADATA_SECRET=****
+export NEUTRON_EXT_INTERFACE_NAME=enp5s0f0
+export EXTERNALNET="195.19.226.128/27"
+export EXTGATEWAY="195.19.226.129"
+export EXTINTERFACE="195.19.226.138/27"
+export DNS1=195.19.252.68
+export DNS2=195.19.252.238
+export DEVNAME=enp5s0f0
+
+#NETWORK setting:
+export FLOATING_IP_START=195.19.226.134
+export FLOATING_IP_END=195.19.226.139
+export EXTERNAL_NETWORK_GATEWAY=195.19.226.129
+export EXTERNAL_NETWORK_CIDR=195.19.226.129/27
+export PRIVATE_NETWORK_GATEWAY=10.0.0.1
+export PRIVATE_NETWORK_CIDR=10.0.0.0/24
+export CEPH_NETWORK_GATEWAY=10.30.30.1
+export CEPH_NETWORK_CIDR=10.30.30.0/24
+export CEPH_IP_START=10.30.30.2
+export CEPH_IP_END=10.30.30.128
+
+#IMAGE
+export IMAGEDIR=/eos/images
+export VOLOUMDIR=/eos/volumes
+
+#new
+export sslkey=*******
+
+keystonehost=alice08.cloud.spbu.ru
