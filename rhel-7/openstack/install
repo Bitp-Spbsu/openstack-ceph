@@ -1,11 +1,12 @@
 #Controller
-#INSTDIR=~/
+INSTDIR=~/
 
 yum localinstall -y `cat $INSTDIR/openstack-ceph/rhel-7/openstack/packages01`
 yum install -y `cat $INSTDIR/openstack-ceph/rhel-7/openstack/packages02`
 yum install -y `cat $INSTDIR/openstack-ceph/rhel-7/openstack/packages-controller`
+ip=`hostname -i`
 
-cp   $INSTDIR/openstack-ceph/rhel-7/openstack/mariadb_openstack.cnf  /etc/my.cnf.d/
+cat  $INSTDIR/openstack-ceph/rhel-7/openstack/mariadb_openstack.cnf |sed s/192.168.200.11/$ip/g >  /etc/my.cnf.d/mariadb_openstack.cnf
 systemctl enable mariadb.service
 systemctl start mariadb.service
 #should change
@@ -78,7 +79,7 @@ systemctl start httpd.service
 
 export OS_URL=http://$CONTROLLER:35357/v2.0
 export OS_TOKEN=$sslkey
-$INSTDIR/rhel-7/openstack/openstack.service.create
+$INSTDIR/openstack-ceph/rhel-7/openstack/openstack.service.create
 
 sed s/GLANCE_DBPASS/"$GLANCE_DBPASS"/g $INSTDIR/openstack-ceph/rhel-7/openstack/openstack-glance.db |mysql --password=$DATABASEPW
 
