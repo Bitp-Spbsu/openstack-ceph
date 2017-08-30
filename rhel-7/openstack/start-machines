@@ -7,6 +7,9 @@ EXTERNAL_NETWORK_CIDR=195.19.226.129/27
 
 #Image create
 glance image-create --name=centossimple0 --disk-format=qcow2 --container-format=bare  --is-public=true < /net/alice22/se2/disks/simplecentos0.qcow2
+## by openstac (ocata)
+openstack image create "cirros"   --file /home/images/image3 --disk-format qcow2 --container-format bare  --public
+
 
 #Network create:
 neutron net-create ext-net --shared --router:external=True

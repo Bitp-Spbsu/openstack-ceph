@@ -1,0 +1,18 @@
+
+
+openstack user create --domain default --password $GLANCE_PASS glance
+openstack user show glance
+
+openstack role add --project service --user glance admin
+
+openstack service create --name glance  --description "OpenStack Image service" image
+openstack service show glance
+
+openstack endpoint create --region RegionOne  image public http://$CONTROLLER:9292
+openstack endpoint create --region RegionOne  image internal http://$CONTROLLER:9292
+openstack endpoint create --region RegionOne  image admin http://$CONTROLLER:9292
+
+
+openstack endpoint list
+
+

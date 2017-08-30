@@ -1,7 +1,7 @@
 #Controller
 INSTDIR=~/
 
-yum localinstall -y `cat $INSTDIR/openstack-ceph/rhel-7/openstack/packages01`
+yum install -y `cat $INSTDIR/openstack-ceph/rhel-7/openstack/packages01`
 yum install -y `cat $INSTDIR/openstack-ceph/rhel-7/openstack/packages02`
 yum install -y `cat $INSTDIR/openstack-ceph/rhel-7/openstack/packages-controller`
 ip=`hostname -i`

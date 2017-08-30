@@ -1,0 +1,17 @@
+
+openstack project create --domain default --description "Service Project" service
+openstack project show service
+
+openstack project create --domain default --description "Demo Project" demo
+openstack project show demo
+
+openstack user create --domain default --password $DEMOPASS demo
+openstack user show demo
+
+openstack role create user
+openstack role show user
+
+openstack role add --project demo --user demo user
+
+
+
