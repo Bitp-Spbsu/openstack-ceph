@@ -1,0 +1,96 @@
+#Noda
+INSTDIR=~/
+
+yum install -y `cat $INSTDIR/openstack-ceph/rhel-7/openstack/packages01-ocata`
+yum install -y `cat $INSTDIR/openstack-ceph/rhel-7/openstack/packages02`
+yum install -y `cat $INSTDIR/openstack-ceph/rhel-7/openstack/packages-node`
+ip=`hostname -i`
+
+
+#NOVA install
+
+
+cp /etc/nova/nova.conf /etc/nova/nova.conf.save.`date +%d.%m.%y-%H.%M`
+
+openstack-config --set  /etc/nova/nova.conf DEFAULT enabled_apis osapi_compute,metadata
+openstack-config --set  /etc/nova/nova.conf DEFAULT my_ip $ip
+openstack-config --set  /etc/nova/nova.conf DEFAULT use_neutron True
+openstack-config --set  /etc/nova/nova.conf DEFAULT firewall_driver nova.virt.firewall.NoopFirewallDriver
+openstack-config --set  /etc/nova/nova.conf DEFAULT transport_url  rabbit://openstack:$RABBIT_PASS@$CONTROLLER
+
+openstack-config --set  /etc/nova/nova.conf vnc enabled true
+openstack-config --set  /etc/nova/nova.conf vnc vncserver_listen 0.0.0.0
+openstack-config --set  /etc/nova/nova.conf vnc vncserver_proxyclient_address $ip
+openstack-config --set  /etc/nova/nova.conf vnc novncproxy_base_url http://$CONTROLLER:6080/vnc_auto.html
+
+openstack-config --set  /etc/nova/nova.conf api auth_strategy keystone
+
+openstack-config --set  /etc/nova/nova.conf keystone_authtoken auth_uri http://$CONTROLLER:5000
+openstack-config --set  /etc/nova/nova.conf keystone_authtoken auth_url http://$CONTROLLER:35357
+openstack-config --set  /etc/nova/nova.conf keystone_authtoken auth_plugin password
+openstack-config --set  /etc/nova/nova.conf keystone_authtoken project_domain_id default
+openstack-config --set  /etc/nova/nova.conf keystone_authtoken user_domain_id default
+openstack-config --set  /etc/nova/nova.conf keystone_authtoken project_name service
+openstack-config --set  /etc/nova/nova.conf keystone_authtoken username nova
+openstack-config --set  /etc/nova/nova.conf keystone_authtoken password $NOVA_PASS
+openstack-config --set  /etc/nova/nova.conf keystone_authtoken  memcached_servers $CONTROLLER:11211
+
+
+openstack-config --set  /etc/nova/nova.conf glance api_servers http://$CONTROLLER:9292
+
+
+openstack-config --set  /etc/nova/nova.conf oslo_concurrency lock_path /var/lib/nova/tmp
+
+openstack-config --set  /etc/nova/nova.conf placement os_region_name  RegionOne
+openstack-config --set  /etc/nova/nova.conf placement project_domain_name  Default
+openstack-config --set  /etc/nova/nova.conf placement project_name  service
+openstack-config --set  /etc/nova/nova.conf placement auth_type  password
+openstack-config --set  /etc/nova/nova.conf placement user_domain_name  Default
+openstack-config --set  /etc/nova/nova.conf placement auth_url  http://$CONTROLLER:35357/v3
+openstack-config --set  /etc/nova/nova.conf placement username  placement
+openstack-config --set  /etc/nova/nova.conf placement password  $PLACEMENT_PASS
+
+
+openstack-config --set  /etc/nova/nova.conf libvirt   virt_type kvm
+openstack-config --set  /etc/nova/nova.conf libvirt   libvirt_images_type rbd
+openstack-config --set  /etc/nova/nova.conf libvirt   libvirt_images_rbd_pool volumes
+openstack-config --set  /etc/nova/nova.conf libvirt   libvirt_images_rbd_ceph_conf /etc/ceph/ceph.conf
+openstack-config --set  /etc/nova/nova.conf libvirt   libvirt_inject_password false
+openstack-config --set  /etc/nova/nova.conf libvirt   libvirt_inject_key false
+openstack-config --set  /etc/nova/nova.conf libvirt   libvirt_inject_partition -2
+openstack-config --set  /etc/nova/nova.conf libvirt   rbd_user cinder
+
+
+export key=`cat /etc/ceph/ceph.client.cinder.keyring`
+echo DEBUG key=$key
+
+systemctl enable libvirtd.service
+systemctl start libvirtd.service
+
+cat > /etc/libvirt/secret.xml << EOF
+   <secret ephemeral='no' private='no'>
+      <usage type='ceph'>
+         <name>client.cinder secret</name>
+      </usage>
+   </secret>
+EOF
+
+skey=`virsh secret-list| grep client.cinder| awk '{print $1}'`
+if [ "$skey" = "" ]; then
+        skey=`virsh secret-define --file /etc/libvirt/secret.xml | awk '{print $2}'`
+fi
+echo DEBUG: virsh secret-set-value --secret  $skey --base64 $key
+virsh secret-set-value --secret  $skey --base64 $key
+
+
+
+systemctl disable  firewalld
+systemctl stop firewalld
+
+openstack-config --set  /etc/nova/nova.conf libvirt   rbd_secret_uuid $skey
+
+systemctl enable libvirtd.service openstack-nova-compute.service
+systemctl restart libvirtd.service openstack-nova-compute.service
+
+
+
