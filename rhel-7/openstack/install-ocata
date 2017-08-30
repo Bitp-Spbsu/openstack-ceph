@@ -128,3 +128,84 @@ su -s /bin/sh -c "glance-manage db_sync" glance
 systemctl enable openstack-glance-api.service openstack-glance-registry.service
 systemctl start openstack-glance-api.service openstack-glance-registry.service
 
+#NOVA install
+
+sed s/NOVA_DBPASS/"$NOVA_DBPASS"/g $INSTDIR/openstack-ceph/rhel-7/openstack/openstack-nova-ocata.db |mysql --password=$DATABASEPW
+
+$INSTDIR/openstack-ceph/rhel-7/openstack/openstack.nova.create-ocata
+
+
+cp /etc/nova/nova.conf /etc/nova/nova.conf.save.`date +%d.%m.%y-%H.%M`
+
+openstack-config --set  /etc/nova/nova.conf DEFAULT enabled_apis osapi_compute,metadata
+openstack-config --set  /etc/nova/nova.conf DEFAULT my_ip $CONTROLLERIP
+openstack-config --set  /etc/nova/nova.conf DEFAULT use_neutron True
+openstack-config --set  /etc/nova/nova.conf DEFAULT firewall_driver nova.virt.firewall.NoopFirewallDriver
+openstack-config --set  /etc/nova/nova.conf DEFAULT transport_url  rabbit://openstack:$RABBIT_PASS@$HOSTNAME
+
+openstack-config --set  /etc/nova/nova.conf vnc enabled true
+openstack-config --set  /etc/nova/nova.conf vnc vncserver_listen $CONTROLLERIP
+openstack-config --set  /etc/nova/nova.conf vnc vncserver_proxyclient_address $CONTROLLERIP
+
+
+openstack-config --set  /etc/nova/nova.conf api_database connection mysql+pymysql://nova:$NOVA_DBPASS@$HOSTNAME/nova_api
+openstack-config --set  /etc/nova/nova.conf database connection mysql+pymysql://nova:$NOVA_DBPASS@$HOSTNAME/nova
+
+
+openstack-config --set  /etc/nova/nova.conf api auth_strategy keystone
+
+openstack-config --set  /etc/nova/nova.conf keystone_authtoken auth_uri http://$HOSTNAME:5000
+openstack-config --set  /etc/nova/nova.conf keystone_authtoken auth_url http://$HOSTNAME:35357
+openstack-config --set  /etc/nova/nova.conf keystone_authtoken auth_plugin password
+openstack-config --set  /etc/nova/nova.conf keystone_authtoken project_domain_id default
+openstack-config --set  /etc/nova/nova.conf keystone_authtoken user_domain_id default
+openstack-config --set  /etc/nova/nova.conf keystone_authtoken project_name service
+openstack-config --set  /etc/nova/nova.conf keystone_authtoken username nova
+openstack-config --set  /etc/nova/nova.conf keystone_authtoken password $NOVA_PASS
+openstack-config --set  /etc/nova/nova.conf keystone_authtoken  memcached_servers $CONTROLLER:11211
+
+
+openstack-config --set  /etc/nova/nova.conf glance api_servers http://$CONTROLLER:9292
+
+
+openstack-config --set  /etc/nova/nova.conf oslo_concurrency lock_path /var/lib/nova/tmp
+
+openstack-config --set  /etc/nova/nova.conf placement os_region_name  RegionOne
+openstack-config --set  /etc/nova/nova.conf placement project_domain_name  Default
+openstack-config --set  /etc/nova/nova.conf placement project_name  service
+openstack-config --set  /etc/nova/nova.conf placement auth_type  password
+openstack-config --set  /etc/nova/nova.conf placement user_domain_name  Default
+openstack-config --set  /etc/nova/nova.conf placement auth_url  http://$CONTROLLER:35357/v3
+openstack-config --set  /etc/nova/nova.conf placement username  placement
+openstack-config --set  /etc/nova/nova.conf placement password  $PLACEMENT_PASS
+
+
+
+
+cat >> /etc/httpd/conf.d/00-nova-placement-api.conf <<EOF
+<Directory /usr/bin>
+   <IfVersion >= 2.4>
+      Require all granted
+   </IfVersion>
+   <IfVersion < 2.4>
+      Order allow,deny
+      Allow from all
+   </IfVersion>
+</Directory>
+EOF
+
+systemctl restart httpd
+
+su -s /bin/sh -c "nova-manage api_db sync" nova
+su -s /bin/sh -c "nova-manage cell_v2 map_cell0" nova
+su -s /bin/sh -c "nova-manage cell_v2 create_cell --name=cell1 --verbose" nova
+su -s /bin/sh -c "nova-manage db sync" nova
+
+
+systemctl enable openstack-nova-api.service \
+  openstack-nova-consoleauth.service openstack-nova-scheduler.service \
+  openstack-nova-conductor.service openstack-nova-novncproxy.service
+
+systemctl start openstack-nova-api.service \
+  openstack-nova-consoleauth.service openstack-nova-scheduler.service \
+  openstack-nova-conductor.service openstack-nova-novncproxy.service
