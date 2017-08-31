@@ -209,3 +209,13 @@ systemctl enable openstack-nova-api.service \
 systemctl start openstack-nova-api.service \
   openstack-nova-consoleauth.service openstack-nova-scheduler.service \
   openstack-nova-conductor.service openstack-nova-novncproxy.service
+
+
+#Neutron
+
+sed s/NEUTRON_DBPASS/$NEUTRON_DBPASS/g $INSTDIR/openstack-ceph/rhel-7/openstack/openstack-neutron.db |mysql --password=$DATABASEPW
+
+$INSTDIR/openstack-ceph/rhel-7/openstack/openstack.neutron.create-ocata
+
+cp /etc/neutron/neutron.conf /etc/neutron/neutron.conf.save.`date +%d.%m.%y-%H.%M`
+
