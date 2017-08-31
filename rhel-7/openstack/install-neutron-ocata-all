@@ -1,0 +1,7 @@
+
+cp /etc/neutron/metadata_agent.ini /etc/neutron/metadata_agent.ini.save.`date +%d.%m.%y-%H.%M`
+
+openstack-config --set /etc/neutron/metadata_agent.ini DEFAULT nova_metadata_ip $CONTROLLER
+openstack-config --set /etc/neutron/metadata_agent.ini DEFAULT metadata_proxy_shared_secret $METADATA_SECRET
+
+
