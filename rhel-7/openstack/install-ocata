@@ -217,5 +217,27 @@ sed s/NEUTRON_DBPASS/$NEUTRON_DBPASS/g $INSTDIR/openstack-ceph/rhel-7/openstack/
 
 $INSTDIR/openstack-ceph/rhel-7/openstack/openstack.neutron.create-ocata
 
-cp /etc/neutron/neutron.conf /etc/neutron/neutron.conf.save.`date +%d.%m.%y-%H.%M`
+#cp /etc/neutron/neutron.conf /etc/neutron/neutron.conf.save.`date +%d.%m.%y-%H.%M`
+#??
+
+cp /etc/nova/nova.conf /etc/nova/nova.conf.save.`date +%d.%m.%y-%H.%M`
+
+
+openstack-config --set  /etc/nova/nova.conf neutron url http://$CONTROLLER:9696
+openstack-config --set  /etc/nova/nova.conf neutron admin_auth_url http://$CONTROLLER:35357/v2.0
+openstack-config --set  /etc/nova/nova.conf neutron auth_type = password
+openstack-config --set  /etc/nova/nova.conf neutron project_domain_name  Default
+openstack-config --set  /etc/nova/nova.conf neutron user_domain_name  default
+openstack-config --set  /etc/nova/nova.conf neutron region_name  RegionOne
+openstack-config --set  /etc/nova/nova.conf neutron project_name  service
+openstack-config --set  /etc/nova/nova.conf neutron username  neutron
+openstack-config --set  /etc/nova/nova.conf neutron password  $NEUTRON_PASS
+openstack-config --set  /etc/nova/nova.conf neutron service_metadata_proxy true
+openstack-config --set  /etc/nova/nova.conf neutron metadata_proxy_shared_secret $METADATA_SECRET
+
+ln -s /etc/neutron/plugins/ml2/ml2_conf.ini /etc/neutron/plugin.ini
+
+
+
+
 
