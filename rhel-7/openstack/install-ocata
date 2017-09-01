@@ -223,7 +223,7 @@ $INSTDIR/openstack-ceph/rhel-7/openstack/openstack.neutron.create-ocata
 cp /etc/nova/nova.conf /etc/nova/nova.conf.save.`date +%d.%m.%y-%H.%M`
 
 
-openstack-config --set  /etc/nova/nova.conf neutron url http://$CONTROLLER:9696
+openstack-config --set  /etc/nova/nova.conf neutron url http://$NEUTRONHOST:9696
 openstack-config --set  /etc/nova/nova.conf neutron admin_auth_url http://$CONTROLLER:35357/v2.0
 openstack-config --set  /etc/nova/nova.conf neutron auth_type = password
 openstack-config --set  /etc/nova/nova.conf neutron project_domain_name  Default
@@ -238,6 +238,6 @@ openstack-config --set  /etc/nova/nova.conf neutron metadata_proxy_shared_secret
 ln -s /etc/neutron/plugins/ml2/ml2_conf.ini /etc/neutron/plugin.ini
 
 
-
+systemctl restart openstack-nova-api.service
 
 

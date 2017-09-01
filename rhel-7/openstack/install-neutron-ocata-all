@@ -4,4 +4,12 @@ cp /etc/neutron/metadata_agent.ini /etc/neutron/metadata_agent.ini.save.`date +%
 openstack-config --set /etc/neutron/metadata_agent.ini DEFAULT nova_metadata_ip $CONTROLLER
 openstack-config --set /etc/neutron/metadata_agent.ini DEFAULT metadata_proxy_shared_secret $METADATA_SECRET
 
+systemctl enable neutron-server.service \
+  neutron-linuxbridge-agent.service neutron-dhcp-agent.service \
+  neutron-metadata-agent.service
+systemctl start neutron-server.service \
+  neutron-linuxbridge-agent.service neutron-dhcp-agent.service \
+  neutron-metadata-agent.service
 
+systemctl enable neutron-l3-agent.service
+systemctl start neutron-l3-agent.service
