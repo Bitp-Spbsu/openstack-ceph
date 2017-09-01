@@ -1,0 +1,6 @@
+keys="openstack keystone oslo neutron nova"
+for i in $keys; do
+	yum remove -y `rpm -qa |grep $i`;
+done
+
+

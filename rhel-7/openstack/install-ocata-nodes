@@ -93,6 +93,55 @@ systemctl enable libvirtd.service openstack-nova-compute.service
 systemctl restart libvirtd.service openstack-nova-compute.service
 
 
+#NEUTRON 
+cp /etc/neutron/neutron.conf /etc/neutron/neutron.conf.save.`date +%d.%m.%y-%H.%M`
+
+openstack-config --set  /etc/neutron/neutron.conf DEFAULT transport_url  rabbit://openstack:$RABBIT_PASS@$CONTROLLER
+openstack-config --set  /etc/neutron/neutron.conf DEFAULT auth_strategy keystone
+
+
+openstack-config --set  /etc/neutron/neutron.conf keystone_authtoken auth_uri http://$CONTROLLER:5000
+openstack-config --set  /etc/neutron/neutron.conf keystone_authtoken auth_url http://$CONTROLLER:35357
+openstack-config --set  /etc/neutron/neutron.conf keystone_authtoken memcached_servers $CONTROLLER:11211
+openstack-config --set  /etc/neutron/neutron.conf keystone_authtoken auth_plugin password
+openstack-config --set  /etc/neutron/neutron.conf keystone_authtoken project_domain_id default
+openstack-config --set  /etc/neutron/neutron.conf keystone_authtoken user_domain_id default
+openstack-config --set  /etc/neutron/neutron.conf keystone_authtoken project_name service
+openstack-config --set  /etc/neutron/neutron.conf keystone_authtoken username neutron
+openstack-config --set  /etc/neutron/neutron.conf keystone_authtoken password $NEUTRON_PASS
+
+openstack-config --set  /etc/neutron/neutron.conf oslo_concurrency lock_path /var/lib/neutron/tmp
+
+
+cp /etc/neutron/plugins/ml2/linuxbridge_agent.ini /etc/neutron/plugins/ml2/linuxbridge_agent.ini.`date +%d.%m.%y-%H.%M`
+
+openstack-config --set  /etc/neutron/plugins/ml2/linuxbridge_agent.ini linux_bridge physical_interface_mappings provider:enp4s0f0
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 openstack-config --set  /etc/nova/nova.conf neutron url http://$CONTROLLER:9696
 openstack-config --set  /etc/nova/nova.conf neutron admin_auth_url http://$CONTROLLER:35357/v2.0
 openstack-config --set  /etc/nova/nova.conf neutron auth_type = password
@@ -105,5 +154,15 @@ openstack-config --set  /etc/nova/nova.conf neutron password  $NEUTRON_PASS
 openstack-config --set  /etc/nova/nova.conf neutron service_metadata_proxy true
 openstack-config --set  /etc/nova/nova.conf neutron metadata_proxy_shared_secret $METADATA_SECRET
 
+
+
+
+
+
 ln -s /etc/neutron/plugins/ml2/ml2_conf.ini /etc/neutron/plugin.ini
+
+
+
+
+
 
